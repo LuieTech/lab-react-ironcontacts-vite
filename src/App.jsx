@@ -1,76 +1,81 @@
 import { useState } from "react";
+import data from "./contacts.json";
 import "./App.css";
-import ContactsDataBase from "./contacts.json"
-
 
 function App() {
 
-  const [contactsData, setContactsData] = useState(ContactsDataBase.slice(0,5))
+  const [contacts, setContacts] = useState(data.slice(0, 5));
 
-  const handleAddRandom = () => {
-    const remainingContacts = ContactsDataBase.filter(contact => !contactsData.includes(contact))
-    if(remainingContacts.length === 0) return;
+  const fiveFirstContacts = contacts.map((contact) => {
+    return (
+      <tr key={contact.id}>
+        <td><img src={contact.pictureUrl} alt="" /></td>
+        <td>{contact.name}</td>
+        <td>{contact.popularity}</td>
+        <td>{contact.wonOscar ? "🏆" : ""}</td>
+        <td>{contact.wonEmmy ? "🌟" : ""}</td>
+        <th><button className="delete-btn" onClick={() => onDelete(contact.id)}>Delete</button></th>
+      </tr>
+    );
+  });
 
-    const randomIndex = Math.floor(Math.random() * remainingContacts.length)
-    const randomContact = remainingContacts[randomIndex];
-
-    setContactsData([...contactsData, randomContact]);
-
+  function handleAddRandom(){
+    const remainingContacts = data.filter(contact => !contacts.some( c => c.id === contact.id))
+    const randomNumber = Math.floor(Math.random() * remainingContacts.length)
+    const randomCelebrity = remainingContacts[randomNumber]
+    if(remainingContacts.length > 0) setContacts([...contacts, randomCelebrity])
+    else{ console.log("No more contacts")}
   }
 
-  const handleNameSort = () => {
-    setContactsData([...contactsData].sort((n1, n2) => n1.name.localeCompare(n2.name)))
+  function handleOnPopularity(){
+    const byPopularity = [...contacts].sort((a,b) => b.popularity - a.popularity)
+    setContacts(byPopularity)
   }
 
-  const handlePopularitySort = () => {
-
-    const popularity = [...contactsData].sort((p1, p2) => p2.popularity - p1.popularity)
-    
-    setContactsData(popularity)
+  function handleByName(){
+    const byName = [...contacts].sort((a,b) => a.name.localeCompare(b.name))
+    setContacts(byName)
   }
 
-  const onDeleteTask = (name) => {
-    setContactsData(contactsData.filter(task => task.name !== name))
+  const onDelete = (id) => {
+    const updatedArray = [...contacts].filter(contact => contact.id !== id)
+    setContacts(updatedArray)
   }
 
   return (
-
-    <div className="App">
-      <div className="add-random-button mb-4">
-        <button className="btn btn-primary me-2" onClick={handleAddRandom}>Add Random Contact</button>
-        <button className="btn btn-primary me-2" onClick={handleNameSort}>Sorted by name</button>
-        <button className="btn btn-primary " onClick={handlePopularitySort}>Sorted by popularity</button>
+    <div className="main-table">
+      <h1>IronContacts</h1>
+      <div className="btns">
+        <button className="btn" 
+          onClick={handleAddRandom}
+        > Add random contact
+        </button>
+        <button className="btn"
+          onClick={handleOnPopularity}
+        >Sort by Popularity</button>
+        <button className="btn" 
+          onClick={handleByName}
+        > Sort by Name
+        </button>
       </div>
-      <table>
-        <thead >
+      <br />
+      <table className="table">
+        <thead>
           <tr>
-            <th >Picture</th>
-            <th >Name</th>
-            <th > Popularity</th>
-            <th className="px-4">Won Oscar</th>
-            <th >Won Emmy</th>
-            <th className="px-4">Actions</th>
+            <th>Picture</th>
+            <th>Name</th>
+            <th>Popularity</th>
+            <th>Won an Oscar</th>
+            <th>Won an Emmy</th>
+            <th>ACTIONS</th>
           </tr>
         </thead>
         <tbody>
-          {contactsData.map(contact => (
-          <tr key={contact.name}>
-            <td>
-              <img src={contact.pictureUrl} alt="image" style={{width: "50px"}} key={contact.name}/>
-            </td>
-            <td>{contact.name}</td>
-            <td>{contact.popularity.toFixed(2)}</td>
-            <td>{contact.wonOscar ? "🏆" : ""}</td>
-            <td>{contact.wonEmmy ? "🌟" : ""}</td>
-            <i className="btn btn-danger" role="button" onClick={() => onDeleteTask(contact.name)}>Delete</i>
-          </tr>
-          ))}
+          {fiveFirstContacts}
         </tbody>
       </table>
     </div>
   );
 }
-
-
 
 export default App;
